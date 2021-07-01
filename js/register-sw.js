@@ -1,5 +1,5 @@
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./service-worker.js')
+  navigator.serviceWorker.register('../service-worker.js')
       .then(reg => {
         console.log("Service worker esta listo!");
       });
@@ -9,14 +9,24 @@ else {
 }
 
 window.addEventListener('offline', event => {
-  document.querySelector('body').classList.add('offline');
+  event.respondWith(
+    caches.match(event.request).then(response => {
+      return response || fetch(event.request);
+    }).catch(function() {
+      return caches.match('/offline.html');
+    })
+  );
+});
 });
 
 window.addEventListener('online', event => {
-  document.querySelector('body').classList.remove('offline');
+  event.respondWith(
+    caches.match(event.request).then(response => {
+      return response || fetch(event.request);
+    }).catch(function() {
+      return caches.match('/index.html');
+    })
+  );
 });
- 
-  if (!navigator.onLine) {
-    document.querySelector('body').classList.add('offline');
-  }
+});
 
